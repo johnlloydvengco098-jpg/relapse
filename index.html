@@ -25,6 +25,7 @@ body {
     width: 90%;
     max-width: 650px;
     text-align: center;
+    padding: 20px 0;
 }
 
 h1 {
@@ -53,13 +54,13 @@ h1 {
     padding: 10px;
     border-radius: 12px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.12);
-
     display: grid;
     grid-template-columns: repeat(10, 1fr);
     gap: 8px;
 }
 
 button {
+    min-width: 0;
     height: 38px;
     border: 1px solid #777;
     border-radius: 6px;
@@ -96,26 +97,24 @@ button.selected {
 }
 
 /* VIDEO */
-
 .video-container {
     display: none;
     margin-top: 25px;
 }
 
-.video-container video {
-    width: 100%;
-    max-width: 650px;
-    border-radius: 15px;
-    box-shadow: 0 5px 25px rgba(0,0,0,0.25);
-}
-
-/* kapag lumabas na ang video */
 .video-container.show {
     display: block;
 }
 
-@media (max-width: 500px) {
+.video-container iframe {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.25);
+}
 
+@media (max-width: 500px) {
     h1 {
         font-size: 25px;
     }
@@ -145,7 +144,7 @@ button.selected {
 
 <div class="game">
 
-    <h1>Spell "ISIPIN" </h1>
+    <h1>Spell "ISIPIN"</h1>
 
     <div class="word" id="word"></div>
 
@@ -153,20 +152,22 @@ button.selected {
 
     <div class="message" id="message"></div>
 
-    <!-- VIDEO -->
+    <!-- CLOUDINARY VIDEO -->
     <div class="video-container" id="videoContainer">
 
-        <video id="myVideo" controls>
-    <source src="video.mp4" type="video/mp4">
-</video>
+        <iframe
+            id="myVideo"
+            src=""
+            title="My Video"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowfullscreen>
+        </iframe>
 
     </div>
 
 </div>
 
-
 <script>
-
 const answer = "ISIPIN";
 let typedWord = "";
 
@@ -175,113 +176,87 @@ const letters = [
     "F","G","H","I","J",
     "K","L","M","N","O",
     "P","Q","R","S","T",
-    "U","V","W","X","Y",
-    "Z"
+    "U","V","W","X","Y","Z"
 ];
 
 const word = document.getElementById("word");
 const keyboard = document.getElementById("keyboard");
 const message = document.getElementById("message");
-
 const videoContainer = document.getElementById("videoContainer");
 const myVideo = document.getElementById("myVideo");
 
+// CLOUDINARY PLAYER URL
+const videoURL =
+    "https://player.cloudinary.com/embed/?cloud_name=xsqavtwq&public_id=video";
 
 // SHOW BLANKS
-
 function showBlanks() {
-
     word.innerHTML = "";
 
     for (let i = 0; i < answer.length; i++) {
-
         const letter = document.createElement("div");
-
         letter.className = "letter";
-
         letter.textContent = typedWord[i] || "";
-
         word.appendChild(letter);
     }
 }
 
+// RESET GAME
+function resetGame() {
+    typedWord = "";
 
-// KEYBOARD
+    document.querySelectorAll("#keyboard button").forEach(btn => {
+        btn.classList.remove("selected");
+    });
 
+    message.textContent = "";
+    showBlanks();
+}
+
+// CREATE KEYBOARD
 letters.forEach(letter => {
-
     const button = document.createElement("button");
-
     button.textContent = letter;
 
     button.addEventListener("click", () => {
-
         if (typedWord.length < answer.length) {
-
             typedWord += letter;
-
             button.classList.add("selected");
-
             showBlanks();
         }
-
     });
 
     keyboard.appendChild(button);
-
 });
 
-
 // ENTER BUTTON
-
 const enterButton = document.createElement("button");
-
 enterButton.textContent = "ENTER";
 enterButton.className = "enter";
 
 enterButton.addEventListener("click", () => {
-
     if (typedWord === answer) {
 
-        // Hide game
         keyboard.style.display = "none";
         word.style.display = "none";
         message.textContent = "";
 
-        // Show video
         videoContainer.classList.add("show");
 
-        // Play video
-        myVideo.play();
+        // Load Cloudinary video player
+        myVideo.src = videoURL;
 
     } else {
-
         message.textContent = "Wrong answer! Try again.";
 
-        setTimeout(() => {
-
-            typedWord = "";
-
-            document.querySelectorAll("button").forEach(btn => {
-                btn.classList.remove("selected");
-            });
-
-            message.textContent = "";
-
-            showBlanks();
-
-        }, 1200);
+        setTimeout(resetGame, 1200);
     }
-
 });
 
 keyboard.appendChild(enterButton);
 
-
 // INITIAL
-
 showBlanks();
-
 </script>
 
 </body>
