@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>.</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: violet;
+}
+
+.game {
+    width: 90%;
+    max-width: 650px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 32px;
+    margin-bottom: 45px;
+    color: #111;
+}
+
+.word {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    margin-bottom: 35px;
+    min-height: 45px;
+}
+
+.letter {
+    width: 25px;
+    font-size: 34px;
+    border-bottom: 3px solid #111;
+    text-transform: uppercase;
+}
+
+.keyboard {
+    background: #f7fbff;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+}
+
+button {
+    height: 38px;
+    border: 1px solid #777;
+    border-radius: 6px;
+    background: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #e8e8e8;
+}
+
+button:active {
+    transform: scale(0.94);
+}
+
+button.selected {
+    background: #ff4f7b;
+    color: white;
+    border-color: #ff4f7b;
+}
+
+.enter {
+    grid-column: 9 / 11;
+    background: #111;
+    color: white;
+    font-weight: bold;
+}
+
+.message {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* VIDEO */
+
+.video-container {
+    display: none;
+    margin-top: 25px;
+}
+
+.video-container video {
+    width: 100%;
+    max-width: 650px;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.25);
+}
+
+/* kapag lumabas na ang video */
+.video-container.show {
+    display: block;
+}
+
+@media (max-width: 500px) {
+
+    h1 {
+        font-size: 25px;
+    }
+
+    .word {
+        gap: 10px;
+    }
+
+    .letter {
+        width: 20px;
+        font-size: 27px;
+    }
+
+    .keyboard {
+        gap: 5px;
+    }
+
+    button {
+        height: 34px;
+        font-size: 13px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <h1>Spell "ISIPIN" </h1>
+
+    <div class="word" id="word"></div>
+
+    <div class="keyboard" id="keyboard"></div>
+
+    <div class="message" id="message"></div>
+
+    <!-- VIDEO -->
+    <div class="video-container" id="videoContainer">
+
+        <video id="myVideo" controls>
+    <source src="ewan.mp4" type="video/mp4">
+</video>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const answer = "ISIPIN";
+let typedWord = "";
+
+const letters = [
+    "A","B","C","D","E",
+    "F","G","H","I","J",
+    "K","L","M","N","O",
+    "P","Q","R","S","T",
+    "U","V","W","X","Y",
+    "Z"
+];
+
+const word = document.getElementById("word");
+const keyboard = document.getElementById("keyboard");
+const message = document.getElementById("message");
+
+const videoContainer = document.getElementById("videoContainer");
+const myVideo = document.getElementById("myVideo");
+
+
+// SHOW BLANKS
+
+function showBlanks() {
+
+    word.innerHTML = "";
+
+    for (let i = 0; i < answer.length; i++) {
+
+        const letter = document.createElement("div");
+
+        letter.className = "letter";
+
+        letter.textContent = typedWord[i] || "";
+
+        word.appendChild(letter);
+    }
+}
+
+
+// KEYBOARD
+
+letters.forEach(letter => {
+
+    const button = document.createElement("button");
+
+    button.textContent = letter;
+
+    button.addEventListener("click", () => {
+
+        if (typedWord.length < answer.length) {
+
+            typedWord += letter;
+
+            button.classList.add("selected");
+
+            showBlanks();
+        }
+
+    });
+
+    keyboard.appendChild(button);
+
+});
+
+
+// ENTER BUTTON
+
+const enterButton = document.createElement("button");
+
+enterButton.textContent = "ENTER";
+enterButton.className = "enter";
+
+enterButton.addEventListener("click", () => {
+
+    if (typedWord === answer) {
+
+        // Hide game
+        keyboard.style.display = "none";
+        word.style.display = "none";
+        message.textContent = "";
+
+        // Show video
+        videoContainer.classList.add("show");
+
+        // Play video
+        myVideo.play();
+
+    } else {
+
+        message.textContent = "Wrong answer! Try again.";
+
+        setTimeout(() => {
+
+            typedWord = "";
+
+            document.querySelectorAll("button").forEach(btn => {
+                btn.classList.remove("selected");
+            });
+
+            message.textContent = "";
+
+            showBlanks();
+
+        }, 1200);
+    }
+
+});
+
+keyboard.appendChild(enterButton);
+
+
+// INITIAL
+
+showBlanks();
+
+</script>
+
+</body>
+</html>
